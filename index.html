@@ -6,7 +6,7 @@
     <title>심플 웹페이지</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
@@ -54,8 +54,8 @@
         </div>
     </header>
 
-    <!-- 메인 섹션 -->
-    <main class="flex-grow container mx-auto px-6 py-12 flex items-center justify-center">
+    <!-- 메인 섹션 - 로그인 전 사용자에게 보입니다. -->
+    <main id="main-section" class="flex-grow container mx-auto px-6 py-12 flex items-center justify-center">
         <div class="text-center">
             <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
                 <span class="text-gradient">새로운 경험을 시작하세요</span>
@@ -64,17 +64,48 @@
                 이것은 당신의 프로젝트를 위한 완벽한 출발점이 될 것입니다. 현대적이고 깨끗한 디자인으로 당신의 비전을 실현하세요.
             </p>
             <div class="mt-8 flex justify-center space-x-4">
-                <!-- '시작하기' 버튼에 id를 추가하여 스크립트에서 쉽게 접근할 수 있도록 합니다. -->
                 <button id="start-btn" class="bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-purple-700 transition-transform transform hover:scale-105 duration-300">시작하기</button>
                 <button class="bg-white text-purple-600 font-bold py-3 px-6 rounded-full border border-purple-600 hover:bg-purple-50 transition-transform transform hover:scale-105 duration-300">더 알아보기</button>
             </div>
         </div>
     </main>
 
+    <!-- 대시보드 섹션 - 로그인 후 사용자에게 보입니다. -->
+    <div id="user-dashboard" class="hidden flex-grow container mx-auto px-6 py-12">
+        <div class="bg-white rounded-lg shadow-lg p-8 md:p-12 mb-8">
+            <div class="flex items-center space-x-4 mb-6">
+                <img id="user-photo" class="w-16 h-16 rounded-full border-2 border-purple-500" src="https://placehold.co/64x64/E5E7EB/1F2937?text=U" alt="사용자 프로필 사진">
+                <h2 id="welcome-message" class="text-3xl md:text-4xl font-bold text-gray-900">
+                    안녕하세요, 환영합니다!
+                </h2>
+            </div>
+            <p class="text-gray-600 mb-6">
+                이곳은 당신을 위해 특별히 준비된 개인 대시보드입니다. 아래에서 최신 정보와 유용한 리소스를 확인하세요.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 정보 카드 1 -->
+                <div class="bg-gray-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-purple-600 mb-2">오늘의 미션</h3>
+                    <p class="text-gray-600">오늘의 할 일 목록을 확인하고 목표를 달성하세요.</p>
+                </div>
+                <!-- 정보 카드 2 -->
+                <div class="bg-gray-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-purple-600 mb-2">최신 소식</h3>
+                    <p class="text-gray-600">놓치지 말아야 할 최신 업데이트와 공지사항을 확인하세요.</p>
+                </div>
+                <!-- 정보 카드 3 -->
+                <div class="bg-gray-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-purple-600 mb-2">리소스 허브</h3>
+                    <p class="text-gray-600">더 나은 성장을 위한 유용한 자료들을 찾아보세요.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 푸터 -->
     <footer class="bg-gray-800 text-white py-6">
         <div class="container mx-auto px-6 text-center">
-            <p>&copy; 2025 </p>
+            <p>&copy; 2023 심플 웹페이지. 모든 권리 보유.</p>
         </div>
     </footer>
 
@@ -103,6 +134,10 @@
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         const startButton = document.getElementById('start-btn');
+        const mainSection = document.getElementById('main-section');
+        const userDashboard = document.getElementById('user-dashboard');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const userPhoto = document.getElementById('user-photo');
 
         // Function to handle Google sign-in
         async function signInWithGoogle() {
@@ -124,10 +159,7 @@
 
         // '시작하기' 버튼 클릭 이벤트 리스너
         startButton.addEventListener('click', () => {
-            if (auth.currentUser) {
-                // 사용자가 로그인한 상태: 새 창을 엽니다.
-                window.open('https://www.google.com', '_blank');
-            } else {
+            if (!auth.currentUser) {
                 // 사용자가 로그인하지 않은 상태: Google 로그인 절차를 시작합니다.
                 signInWithGoogle();
             }
@@ -137,9 +169,19 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User is signed in
+                // 대시보드를 표시하고 메인 섹션을 숨깁니다.
+                mainSection.classList.add('hidden');
+                userDashboard.classList.remove('hidden');
+
+                // 사용자 이름과 사진을 대시보드에 표시합니다.
+                welcomeMessage.textContent = `안녕하세요, ${user.displayName}!`;
+                if (user.photoURL) {
+                    userPhoto.src = user.photoURL;
+                }
+                
                 authUi.innerHTML = `
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">안녕하세요, ${user.displayName}!</span>
+                        <span class="text-gray-600 hidden md:block">${user.displayName}</span>
                         <button id="sign-out-btn" class="bg-red-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-300">
                             로그아웃
                         </button>
@@ -148,6 +190,10 @@
                 document.getElementById('sign-out-btn').addEventListener('click', signOutUser);
             } else {
                 // User is signed out
+                // 메인 섹션을 표시하고 대시보드를 숨깁니다.
+                mainSection.classList.remove('hidden');
+                userDashboard.classList.add('hidden');
+
                 authUi.innerHTML = `
                     <button id="sign-in-btn" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-purple-700 transition-colors duration-300">
                         Google로 로그인
