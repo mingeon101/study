@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>심플 웹페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .text-gradient {
+            background-image: linear-gradient(to right, #6b46c1, #a06e93);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+    <!-- 헤더 -->
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-800">
+                <span class="text-gradient">로고</span>
+            </a>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-6">
+                    <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">홈</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">서비스</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">소개</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">연락처</a></li>
+                </ul>
+            </nav>
+            <div id="auth-ui" class="flex items-center space-x-4">
+                <!-- 로그인/로그아웃 UI가 여기에 동적으로 삽입됩니다. -->
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- 모바일 메뉴 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-2 mt-2">
+            <ul class="flex flex-col items-center space-y-4">
+                <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">홈</a></li>
+                <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">서비스</a></li>
+                <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">소개</a></li>
+                <li><a href="#" class="text-gray-600 hover:text-purple-600 transition-colors duration-300">연락처</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 메인 섹션 -->
+    <main class="flex-grow container mx-auto px-6 py-12 flex items-center justify-center">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+                <span class="text-gradient">새로운 경험을 시작하세요</span>
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+                이것은 당신의 프로젝트를 위한 완벽한 출발점이 될 것입니다. 현대적이고 깨끗한 디자인으로 당신의 비전을 실현하세요.
+            </p>
+            <div class="mt-8 flex justify-center space-x-4">
+                <button class="bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-purple-700 transition-transform transform hover:scale-105 duration-300">시작하기</button>
+                <button class="bg-white text-purple-600 font-bold py-3 px-6 rounded-full border border-purple-600 hover:bg-purple-50 transition-transform transform hover:scale-105 duration-300">더 알아보기</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2023 심플 웹페이지. 모든 권리 보유.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+        
+        // Your web app's Firebase configuration from the user
+        const firebaseConfig = {
+          apiKey: "AIzaSyDv7K3WQjqGY1AWQfg5uTXWJKvLrBade2k",
+          authDomain: "study-f3b4a.firebaseapp.com",
+          projectId: "study-f3b4a",
+          storageBucket: "study-f3b4a.firebasestorage.app",
+          messagingSenderId: "452789603611",
+          appId: "1:452789603611:web:6ee437e2195f05b6b457be",
+          measurementId: "G-MLHV4LWBPQ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const authUi = document.getElementById('auth-ui');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Function to handle Google sign-in
+        async function signInWithGoogle() {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Google 로그인 오류:", error);
+            }
+        }
+
+        // Function to handle sign-out
+        async function signOutUser() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("로그아웃 오류:", error);
+            }
+        }
+
+        // Listen for auth state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                authUi.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">안녕하세요, ${user.displayName}!</span>
+                        <button id="sign-out-btn" class="bg-red-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-300">
+                            로그아웃
+                        </button>
+                    </div>
+                `;
+                document.getElementById('sign-out-btn').addEventListener('click', signOutUser);
+            } else {
+                // User is signed out
+                authUi.innerHTML = `
+                    <button id="sign-in-btn" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-purple-700 transition-colors duration-300">
+                        Google로 로그인
+                    </button>
+                `;
+                document.getElementById('sign-in-btn').addEventListener('click', signInWithGoogle);
+            }
+        });
+
+        // 모바일 메뉴 토글 스크립트
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
