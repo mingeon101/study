@@ -16,6 +16,18 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #6b46c1;
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen">
@@ -72,7 +84,7 @@
 
     <!-- 대시보드 섹션 - 로그인 후 사용자에게 보입니다. -->
     <div id="user-dashboard" class="hidden flex-grow container mx-auto px-6 py-12">
-        <div class="bg-white rounded-lg shadow-lg p-8 md:p-12 mb-8">
+        <div id="dashboard-content" class="bg-white rounded-lg shadow-lg p-8 md:p-12 mb-8">
             <div class="flex items-center space-x-4 mb-6">
                 <img id="user-photo" class="w-16 h-16 rounded-full border-2 border-purple-500" src="https://placehold.co/64x64/E5E7EB/1F2937?text=U" alt="사용자 프로필 사진">
                 <h2 id="welcome-message" class="text-3xl md:text-4xl font-bold text-gray-900">
@@ -98,7 +110,46 @@
                     <h3 class="text-xl font-semibold text-purple-600 mb-2">리소스 허브</h3>
                     <p class="text-gray-600">더 나은 성장을 위한 유용한 자료들을 찾아보세요.</p>
                 </div>
+                <!-- 새롭게 추가된 기능 버튼 -->
+                <div class="bg-purple-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer" id="ocr-btn">
+                    <h3 class="text-xl font-semibold text-purple-700 mb-2">문제 풀이 서포터</h3>
+                    <p class="text-gray-700">책을 찍고 문제 풀이 도움을 받으세요.</p>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- OCR/문제 풀이 서포터 섹션 -->
+    <div id="ocr-section" class="hidden flex-grow container mx-auto px-6 py-12">
+        <div class="bg-white rounded-lg shadow-lg p-8 md:p-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">문제 풀이 서포터</h2>
+            <p class="text-gray-600 mb-4">문제 풀이 도움을 받으려면 책이나 문제의 사진을 업로드하세요.</p>
+            <input type="file" id="image-upload" accept="image/*" class="mb-4">
+            
+            <div id="image-container" class="mb-4 flex justify-center items-center p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                <span class="text-gray-400">이미지 미리보기</span>
+            </div>
+            
+            <button id="process-image-btn" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-purple-700 transition-colors duration-300 mb-4 w-full md:w-auto">
+                문제 분석하기
+            </button>
+
+            <div id="status-area" class="text-center text-gray-500 mb-4 hidden">
+                <div class="loading-spinner mx-auto mb-2"></div>
+                <p id="status-message">이미지를 분석하는 중...</p>
+            </div>
+            
+            <div id="results-area" class="hidden">
+                <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2">추출된 텍스트:</h3>
+                <pre id="ocr-text" class="bg-gray-100 p-4 rounded-lg whitespace-pre-wrap text-gray-800 text-sm"></pre>
+                
+                <h3 class="text-xl font-semibold text-gray-700 mt-6 mb-2">문제 풀이:</h3>
+                <div id="solution-text" class="bg-purple-50 p-4 rounded-lg text-gray-800"></div>
+            </div>
+
+            <button id="back-to-dashboard-btn" class="mt-8 text-gray-600 hover:text-purple-600 transition-colors duration-300">
+                &larr; 대시보드로 돌아가기
+            </button>
         </div>
     </div>
 
@@ -109,12 +160,12 @@
         </div>
     </footer>
 
+    <!-- Tesseract.js 및 Firebase SDK 로드 -->
+    <script src='https://unpkg.com/tesseract.js@2.1.4/dist/tesseract.min.js'></script>
     <script type="module">
-        // Firebase SDK imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
         
-        // Your web app's Firebase configuration from the user
         const firebaseConfig = {
           apiKey: "AIzaSyDv7K3WQjqGY1AWQfg5uTXWJKvLrBade2k",
           authDomain: "study-f3b4a.firebaseapp.com",
@@ -125,7 +176,6 @@
           measurementId: "G-MLHV4LWBPQ"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
@@ -138,8 +188,23 @@
         const userDashboard = document.getElementById('user-dashboard');
         const welcomeMessage = document.getElementById('welcome-message');
         const userPhoto = document.getElementById('user-photo');
+        
+        // OCR 관련 DOM 요소들
+        const ocrButton = document.getElementById('ocr-btn');
+        const ocrSection = document.getElementById('ocr-section');
+        const imageUpload = document.getElementById('image-upload');
+        const imageContainer = document.getElementById('image-container');
+        const processImageBtn = document.getElementById('process-image-btn');
+        const statusArea = document.getElementById('status-area');
+        const statusMessage = document.getElementById('status-message');
+        const resultsArea = document.getElementById('results-area');
+        const ocrTextDiv = document.getElementById('ocr-text');
+        const solutionTextDiv = document.getElementById('solution-text');
+        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
 
-        // Function to handle Google sign-in
+        let userFile = null;
+
+        // 구글 로그인
         async function signInWithGoogle() {
             try {
                 await signInWithPopup(auth, provider);
@@ -148,7 +213,7 @@
             }
         }
 
-        // Function to handle sign-out
+        // 로그아웃
         async function signOutUser() {
             try {
                 await signOut(auth);
@@ -157,23 +222,113 @@
             }
         }
 
+        // 이미지 미리보기
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                userFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imageContainer.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="rounded-lg max-w-full h-auto">`;
+                };
+                reader.readAsDataURL(file);
+                processImageBtn.disabled = false;
+            } else {
+                imageContainer.innerHTML = `<span class="text-gray-400">이미지 미리보기</span>`;
+                userFile = null;
+                processImageBtn.disabled = true;
+            }
+        });
+
+        // OCR 처리 및 문제 풀이
+        processImageBtn.addEventListener('click', async () => {
+            if (!userFile) return;
+
+            // 로딩 상태 표시
+            statusArea.classList.remove('hidden');
+            resultsArea.classList.add('hidden');
+            solutionTextDiv.innerHTML = '';
+            
+            try {
+                // OCR 시작
+                statusMessage.textContent = "이미지에서 텍스트를 추출하는 중...";
+                const result = await Tesseract.recognize(
+                    userFile,
+                    'kor', // 한국어 언어 팩 사용
+                    {
+                        logger: m => console.log(m)
+                    }
+                );
+                const extractedText = result.data.text;
+                ocrTextDiv.textContent = extractedText;
+
+                // AI에게 문제 풀이 요청
+                statusMessage.textContent = "추출된 텍스트를 바탕으로 풀이를 생성하는 중...";
+                const systemPrompt = "당신은 학생들의 문제 풀이를 도와주는 AI 튜터입니다. 제공된 텍스트에서 수학, 과학, 또는 기타 문제들을 찾아 자세한 풀이와 설명을 제공해주세요. 단순히 답만 제공하는 것이 아니라, 왜 그런 답이 나왔는지 단계별로 설명해주어야 합니다. 만약 텍스트에 문제가 없거나 관련이 없으면, '문제 해결에 도움을 드릴 수 없습니다.'라고 답변해주세요.";
+                const userQuery = `다음 문제에 대한 풀이와 설명을 제공해 주세요. 문제: ${extractedText}`;
+                
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                };
+                const apiKey = ""
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const apiResult = await response.json();
+                const aiSolution = apiResult.candidates?.[0]?.content?.parts?.[0]?.text || "죄송합니다. 문제 풀이를 생성하는 데 실패했습니다.";
+                
+                solutionTextDiv.innerHTML = `<p class="whitespace-pre-wrap">${aiSolution}</p>`;
+
+            } catch (error) {
+                console.error("처리 오류:", error);
+                solutionTextDiv.textContent = "오류가 발생했습니다. 다시 시도해 주세요.";
+            } finally {
+                statusArea.classList.add('hidden');
+                resultsArea.classList.remove('hidden');
+            }
+        });
+
         // '시작하기' 버튼 클릭 이벤트 리스너
         startButton.addEventListener('click', () => {
             if (!auth.currentUser) {
-                // 사용자가 로그인하지 않은 상태: Google 로그인 절차를 시작합니다.
                 signInWithGoogle();
             }
         });
 
-        // Listen for auth state changes
+        // '문제 풀이 서포터' 버튼 클릭 시
+        ocrButton.addEventListener('click', () => {
+            userDashboard.classList.add('hidden');
+            ocrSection.classList.remove('hidden');
+        });
+        
+        // '대시보드로 돌아가기' 버튼 클릭 시
+        backToDashboardBtn.addEventListener('click', () => {
+            ocrSection.classList.add('hidden');
+            userDashboard.classList.remove('hidden');
+            // 상태 초기화
+            imageUpload.value = '';
+            imageContainer.innerHTML = `<span class="text-gray-400">이미지 미리보기</span>`;
+            statusArea.classList.add('hidden');
+            resultsArea.classList.add('hidden');
+            ocrTextDiv.textContent = '';
+            solutionTextDiv.textContent = '';
+        });
+
+        // 인증 상태 변경 리스너
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in
-                // 대시보드를 표시하고 메인 섹션을 숨깁니다.
+                // 사용자가 로그인한 경우: 대시보드 표시
                 mainSection.classList.add('hidden');
                 userDashboard.classList.remove('hidden');
-
-                // 사용자 이름과 사진을 대시보드에 표시합니다.
+                
                 welcomeMessage.textContent = `안녕하세요, ${user.displayName}!`;
                 if (user.photoURL) {
                     userPhoto.src = user.photoURL;
@@ -189,11 +344,11 @@
                 `;
                 document.getElementById('sign-out-btn').addEventListener('click', signOutUser);
             } else {
-                // User is signed out
-                // 메인 섹션을 표시하고 대시보드를 숨깁니다.
+                // 사용자가 로그아웃한 경우: 메인 페이지 표시
                 mainSection.classList.remove('hidden');
                 userDashboard.classList.add('hidden');
-
+                ocrSection.classList.add('hidden'); // OCR 섹션도 숨김
+                
                 authUi.innerHTML = `
                     <button id="sign-in-btn" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-purple-700 transition-colors duration-300">
                         Google로 로그인
@@ -203,7 +358,7 @@
             }
         });
 
-        // 모바일 메뉴 토글 스크립트
+        // 모바일 메뉴 토글
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
