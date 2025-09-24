@@ -85,11 +85,16 @@
     <!-- 대시보드 섹션 - 로그인 후 사용자에게 보입니다. -->
     <div id="user-dashboard" class="hidden flex-grow container mx-auto px-6 py-12">
         <div id="dashboard-content" class="bg-white rounded-lg shadow-lg p-8 md:p-12 mb-8">
-            <div class="flex items-center space-x-4 mb-6">
-                <img id="user-photo" class="w-16 h-16 rounded-full border-2 border-purple-500" src="https://placehold.co/64x64/E5E7EB/1F2937?text=U" alt="사용자 프로필 사진">
-                <h2 id="welcome-message" class="text-3xl md:text-4xl font-bold text-gray-900">
-                    안녕하세요, 환영합니다!
-                </h2>
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0 mb-6">
+                <div class="flex items-center space-x-4">
+                    <img id="user-photo" class="w-16 h-16 rounded-full border-2 border-purple-500" src="https://placehold.co/64x64/E5E7EB/1F2937?text=U" alt="사용자 프로필 사진">
+                    <div>
+                        <h2 id="welcome-message" class="text-3xl md:text-4xl font-bold text-gray-900">
+                            안녕하세요, 환영합니다!
+                        </h2>
+                        <span id="user-id-display" class="block text-sm text-gray-500 mt-1"></span>
+                    </div>
+                </div>
             </div>
             <p class="text-gray-600 mb-6">
                 이곳은 당신을 위해 특별히 준비된 개인 대시보드입니다. 아래에서 최신 정보와 유용한 리소스를 확인하세요.
@@ -100,20 +105,20 @@
                     <h3 class="text-xl font-semibold text-purple-600 mb-2">오늘의 미션</h3>
                     <p class="text-gray-600">오늘의 할 일 목록을 확인하고 목표를 달성하세요.</p>
                 </div>
-                <!-- 정보 카드 2 -->
-                <div class="bg-gray-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300">
-                    <h3 class="text-xl font-semibold text-purple-600 mb-2">최신 소식</h3>
-                    <p class="text-gray-600">놓치지 말아야 할 최신 업데이트와 공지사항을 확인하세요.</p>
-                </div>
-                <!-- 정보 카드 3 -->
-                <div class="bg-gray-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300">
-                    <h3 class="text-xl font-semibold text-purple-600 mb-2">리소스 허브</h3>
-                    <p class="text-gray-600">더 나은 성장을 위한 유용한 자료들을 찾아보세요.</p>
+                <!-- 정보 카드 2 - 내 기록 -->
+                <div class="bg-gray-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer" id="my-history-btn">
+                    <h3 class="text-xl font-semibold text-purple-600 mb-2">내 기록</h3>
+                    <p class="text-gray-600">내가 풀이했던 문제들을 다시 확인하세요.</p>
                 </div>
                 <!-- 새롭게 추가된 기능 버튼 -->
                 <div class="bg-purple-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer" id="ocr-btn">
                     <h3 class="text-xl font-semibold text-purple-700 mb-2">문제 풀이 서포터</h3>
                     <p class="text-gray-700">책을 찍고 문제 풀이 도움을 받으세요.</p>
+                </div>
+                <!-- 커뮤니티 채팅 버튼 -->
+                <div class="bg-blue-50 rounded-lg p-6 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer" id="community-btn">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-2">커뮤니티</h3>
+                    <p class="text-gray-700">다른 사람들과 자유롭게 대화하세요.</p>
                 </div>
             </div>
         </div>
@@ -153,6 +158,36 @@
         </div>
     </div>
 
+    <!-- 내 기록 섹션 -->
+    <div id="history-section" class="hidden flex-grow container mx-auto px-6 py-12">
+        <div class="bg-white rounded-lg shadow-lg p-8 md:p-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">내 기록</h2>
+            <div id="history-list" class="space-y-6">
+                <p class="text-gray-500">아직 저장된 풀이 기록이 없습니다.</p>
+            </div>
+            <button id="back-from-history-btn" class="mt-8 text-gray-600 hover:text-purple-600 transition-colors duration-300">
+                &larr; 대시보드로 돌아가기
+            </button>
+        </div>
+    </div>
+
+    <!-- 커뮤니티 섹션 -->
+    <div id="community-section" class="hidden flex-grow container mx-auto px-6 py-12">
+        <div class="bg-white rounded-lg shadow-lg p-8 md:p-12 h-full flex flex-col">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">커뮤니티 채팅</h2>
+            <div id="chat-messages" class="flex-grow overflow-y-auto mb-4 p-4 border rounded-lg bg-gray-50 space-y-4">
+                <p class="text-gray-500 text-center">채팅 메시지를 불러오는 중...</p>
+            </div>
+            <div class="flex">
+                <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." class="flex-grow rounded-l-lg border-t border-b border-l border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="send-chat-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-r-lg hover:bg-blue-700 transition-colors duration-300">전송</button>
+            </div>
+            <button id="back-from-community-btn" class="mt-8 text-gray-600 hover:text-blue-600 transition-colors duration-300">
+                &larr; 대시보드로 돌아가기
+            </button>
+        </div>
+    </div>
+
     <!-- 푸터 -->
     <footer class="bg-gray-800 text-white py-6">
         <div class="container mx-auto px-6 text-center">
@@ -163,23 +198,29 @@
     <!-- Tesseract.js 및 Firebase SDK 로드 -->
     <script src='https://unpkg.com/tesseract.js@2.1.4/dist/tesseract.min.js'></script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        const firebaseConfig = {
-          apiKey: "AIzaSyDv7K3WQjqGY1AWQfg5uTXWJKvLrBade2k",
-          authDomain: "study-f3b4a.firebaseapp.com",
-          projectId: "study-f3b4a",
-          storageBucket: "study-f3b4a.firebasestorage.app",
-          messagingSenderId: "452789603611",
-          appId: "1:452789603611:web:6ee437e2195f05b6b457be",
-          measurementId: "G-MLHV4LWBPQ"
+        // 전역 변수 설정 (캔버스 환경에서 제공)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDv7K3WQjqGY1AWQfg5uTXWJKvLrBade2k",
+            authDomain: "study-f3b4a.firebaseapp.com",
+            projectId: "study-f3b4a",
+            storageBucket: "study-f3b4a.firebasestorage.app",
+            messagingSenderId: "452789603611",
+            appId: "1:452789603611:web:6ee437e2195f05b6b457be",
+            measurementId: "G-MLHV4LWBPQ"
         };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
+        // Firebase 서비스 초기화
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
+        const db = getFirestore(app);
+        
+        // DOM 요소 가져오기
         const authUi = document.getElementById('auth-ui');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -188,6 +229,7 @@
         const userDashboard = document.getElementById('user-dashboard');
         const welcomeMessage = document.getElementById('welcome-message');
         const userPhoto = document.getElementById('user-photo');
+        const userIdDisplay = document.getElementById('user-id-display');
         
         // OCR 관련 DOM 요소들
         const ocrButton = document.getElementById('ocr-btn');
@@ -202,11 +244,91 @@
         const solutionTextDiv = document.getElementById('solution-text');
         const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
 
+        // 내 기록 관련 DOM 요소
+        const myHistoryBtn = document.getElementById('my-history-btn');
+        const historySection = document.getElementById('history-section');
+        const historyList = document.getElementById('history-list');
+        const backFromHistoryBtn = document.getElementById('back-from-history-btn');
+
+        // 커뮤니티 관련 DOM 요소
+        const communityBtn = document.getElementById('community-btn');
+        const communitySection = document.getElementById('community-section');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+        const backFromCommunityBtn = document.getElementById('back-from-community-btn');
+
         let userFile = null;
+        let currentUserId = null;
+
+        // 대시보드 뉴스 업데이트 함수 (사용하지 않으므로 주석 처리)
+        // function updateDashboardNews() {
+        //     if (latestNewsFeedback) {
+        //         latestNewsContent.textContent = latestNewsFeedback;
+        //     } else {
+        //         latestNewsContent.textContent = '놓치지 말아야 할 최신 업데이트와 공지사항을 확인하세요.';
+        //     }
+        // }
+
+        // Firebase 인증 상태 변경 리스너
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                
+                // UI 업데이트
+                mainSection.classList.add('hidden');
+                userDashboard.classList.remove('hidden');
+                
+                welcomeMessage.textContent = `안녕하세요, ${user.displayName || '손님'}님!`;
+                userIdDisplay.textContent = `사용자 ID: ${currentUserId}`;
+                if (user.photoURL) {
+                    userPhoto.src = user.photoURL;
+                }
+                
+                authUi.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600 hidden md:block">${user.displayName || '손님'}</span>
+                        <button id="sign-out-btn" class="bg-red-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-300">
+                            로그아웃
+                        </button>
+                    </div>
+                `;
+                document.getElementById('sign-out-btn').addEventListener('click', signOutUser);
+                
+                // 실시간 채팅 리스너 시작
+                setupChatListener();
+            } else {
+                currentUserId = null;
+                // UI 업데이트
+                mainSection.classList.remove('hidden');
+                userDashboard.classList.add('hidden');
+                ocrSection.classList.add('hidden');
+                historySection.classList.add('hidden');
+                communitySection.classList.add('hidden');
+                
+                authUi.innerHTML = `
+                    <button id="sign-in-btn" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-purple-700 transition-colors duration-300">
+                        Google로 로그인
+                    </button>
+                `;
+                document.getElementById('sign-in-btn').addEventListener('click', signInWithGoogle);
+            }
+        });
+
+        // 초기 인증 처리
+        if (initialAuthToken) {
+            signInWithCustomToken(auth, initialAuthToken).catch(error => {
+                console.error("Custom token login failed, signing in anonymously:", error);
+                signInAnonymously(auth);
+            });
+        } else {
+            signInAnonymously(auth);
+        }
 
         // 구글 로그인
         async function signInWithGoogle() {
             try {
+                const provider = new GoogleAuthProvider();
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Google 로그인 오류:", error);
@@ -254,7 +376,7 @@
                 statusMessage.textContent = "이미지에서 텍스트를 추출하는 중...";
                 const result = await Tesseract.recognize(
                     userFile,
-                    'kor', // 한국어 언어 팩 사용
+                    'kor+eng',
                     {
                         logger: m => console.log(m)
                     }
@@ -287,6 +409,16 @@
                 
                 solutionTextDiv.innerHTML = `<p class="whitespace-pre-wrap">${aiSolution}</p>`;
 
+                // 문제 풀이 완료 후 Firestore에 기록 저장
+                if (currentUserId) {
+                    const historyCollectionRef = collection(db, `artifacts/${appId}/users/${currentUserId}/ocr_history`);
+                    await addDoc(historyCollectionRef, {
+                        extractedText: extractedText,
+                        aiSolution: aiSolution,
+                        timestamp: serverTimestamp()
+                    });
+                }
+
             } catch (error) {
                 console.error("처리 오류:", error);
                 solutionTextDiv.textContent = "오류가 발생했습니다. 다시 시도해 주세요.";
@@ -296,20 +428,111 @@
             }
         });
 
+        // 내 기록 보기
+        myHistoryBtn.addEventListener('click', async () => {
+            userDashboard.classList.add('hidden');
+            historySection.classList.remove('hidden');
+            
+            if (!currentUserId) {
+                historyList.innerHTML = `<p class="text-gray-500">로그인 후 기록을 확인할 수 있습니다.</p>`;
+                return;
+            }
+
+            try {
+                historyList.innerHTML = `<div class="loading-spinner mx-auto"></div><p class="text-center text-gray-500 mt-2">기록을 불러오는 중...</p>`;
+                const historyCollectionRef = collection(db, `artifacts/${appId}/users/${currentUserId}/ocr_history`);
+                const q = query(historyCollectionRef, orderBy('timestamp', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    historyList.innerHTML = `<p class="text-gray-500">아직 저장된 풀이 기록이 없습니다.</p>`;
+                    return;
+                }
+
+                historyList.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : '날짜 없음';
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'bg-white p-6 rounded-lg shadow-md border-b border-gray-200';
+                    historyItem.innerHTML = `
+                        <p class="text-sm text-gray-400 mb-2">${date}</p>
+                        <h4 class="text-lg font-semibold text-gray-700 mb-2">문제:</h4>
+                        <pre class="bg-gray-100 p-3 rounded-lg text-sm whitespace-pre-wrap">${data.extractedText}</pre>
+                        <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">풀이:</h4>
+                        <div class="bg-purple-50 p-3 rounded-lg text-sm whitespace-pre-wrap">${data.aiSolution}</div>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+
+            } catch (error) {
+                console.error("내 기록 불러오기 오류:", error);
+                historyList.innerHTML = `<p class="text-red-500">기록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.</p>`;
+            }
+        });
+
+        // 커뮤니티 채팅 보기
+        communityBtn.addEventListener('click', () => {
+            userDashboard.classList.add('hidden');
+            communitySection.classList.remove('hidden');
+        });
+
+        // 실시간 채팅 리스너
+        function setupChatListener() {
+            if (!currentUserId) return;
+            const chatCollectionRef = collection(db, `artifacts/${appId}/public/data/community_chat`);
+            const q = query(chatCollectionRef, orderBy('timestamp'));
+
+            onSnapshot(q, (querySnapshot) => {
+                chatMessages.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `p-3 rounded-lg shadow-sm ${data.userId === currentUserId ? 'bg-blue-100 ml-auto' : 'bg-gray-200 mr-auto'}`;
+                    messageElement.style.maxWidth = '80%';
+                    messageElement.innerHTML = `
+                        <p class="text-xs font-bold text-gray-600 mb-1">${data.userName || data.userId.substring(0, 8)}</p>
+                        <p class="text-sm text-gray-800 whitespace-pre-wrap">${data.message}</p>
+                    `;
+                    chatMessages.appendChild(messageElement);
+                });
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, (error) => {
+                console.error("채팅 리스너 오류:", error);
+                chatMessages.innerHTML = `<p class="text-red-500 text-center">채팅을 불러오는 중 오류가 발생했습니다.</p>`;
+            });
+        }
+
+        // 채팅 메시지 전송
+        sendChatBtn.addEventListener('click', async () => {
+            const message = chatInput.value.trim();
+            if (message && currentUserId) {
+                const chatCollectionRef = collection(db, `artifacts/${appId}/public/data/community_chat`);
+                const user = auth.currentUser;
+                await addDoc(chatCollectionRef, {
+                    userId: currentUserId,
+                    userName: user ? user.displayName : '손님',
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+                chatInput.value = '';
+            }
+        });
+
         // '시작하기' 버튼 클릭 이벤트 리스너
         startButton.addEventListener('click', () => {
             if (!auth.currentUser) {
                 signInWithGoogle();
             }
         });
-
+        
         // '문제 풀이 서포터' 버튼 클릭 시
         ocrButton.addEventListener('click', () => {
             userDashboard.classList.add('hidden');
             ocrSection.classList.remove('hidden');
         });
-        
-        // '대시보드로 돌아가기' 버튼 클릭 시
+
+        // '대시보드로 돌아가기' 버튼 클릭 시 (OCR 섹션)
         backToDashboardBtn.addEventListener('click', () => {
             ocrSection.classList.add('hidden');
             userDashboard.classList.remove('hidden');
@@ -322,40 +545,16 @@
             solutionTextDiv.textContent = '';
         });
 
-        // 인증 상태 변경 리스너
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 사용자가 로그인한 경우: 대시보드 표시
-                mainSection.classList.add('hidden');
-                userDashboard.classList.remove('hidden');
-                
-                welcomeMessage.textContent = `안녕하세요, ${user.displayName}!`;
-                if (user.photoURL) {
-                    userPhoto.src = user.photoURL;
-                }
-                
-                authUi.innerHTML = `
-                    <div class="flex items-center space-x-4">
-                        <span class="text-gray-600 hidden md:block">${user.displayName}</span>
-                        <button id="sign-out-btn" class="bg-red-500 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-300">
-                            로그아웃
-                        </button>
-                    </div>
-                `;
-                document.getElementById('sign-out-btn').addEventListener('click', signOutUser);
-            } else {
-                // 사용자가 로그아웃한 경우: 메인 페이지 표시
-                mainSection.classList.remove('hidden');
-                userDashboard.classList.add('hidden');
-                ocrSection.classList.add('hidden'); // OCR 섹션도 숨김
-                
-                authUi.innerHTML = `
-                    <button id="sign-in-btn" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:bg-purple-700 transition-colors duration-300">
-                        Google로 로그인
-                    </button>
-                `;
-                document.getElementById('sign-in-btn').addEventListener('click', signInWithGoogle);
-            }
+        // '대시보드로 돌아가기' 버튼 클릭 시 (내 기록 섹션)
+        backFromHistoryBtn.addEventListener('click', () => {
+            historySection.classList.add('hidden');
+            userDashboard.classList.remove('hidden');
+        });
+
+        // '대시보드로 돌아가기' 버튼 클릭 시 (커뮤니티 섹션)
+        backFromCommunityBtn.addEventListener('click', () => {
+            communitySection.classList.add('hidden');
+            userDashboard.classList.remove('hidden');
         });
 
         // 모바일 메뉴 토글
